@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pocketbook>
+    <contacts>
+        <contact>
+            <uuid>b8a4268b-d9f0-4b41-928c-13c3a66ae55e</uuid>
+            <name>Alice</name>
+            <phone>12345678</phone>
+            <email>email@email.mu</email>
+        </contact>
+        <contact>
+            <uuid>fa0ef5d7-35c2-4fb5-afdb-dacdcdb41c32</uuid>
+            <name>Bert</name>
+            <phone>87654321</phone>
+            <email>i@e.e</email>
+        </contact>
+    </contacts>
+</pocketbook>
