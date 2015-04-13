@@ -20,7 +20,7 @@ public class XmlStorage implements IStorage {
     private PocketBook pocketBook;
 
 
-    public static final transient String DEFAULT_NAME = "../pocket_book.xml";
+    public static final transient String DEFAULT_NAME = "./pocket_book.xml";
 
     public XmlStorage() {
         this (DEFAULT_NAME);

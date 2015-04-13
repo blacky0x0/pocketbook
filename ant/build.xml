@@ -7,8 +7,12 @@
     <property name="dir.lib"            value="../lib"/>
     <property name="dir.src"            value="../src"/>
 
+    <tstamp>
+        <format property="cur_date" pattern="yyyy-MM-dd_HH-mm" locale="en,UK"/>
+    </tstamp>
+
     <property name="file.jar"
-              value="../pocket_book.jar"/>
+              value="../pocket_book_${cur_date}.jar"/>
     <property name="file.manifest"
               value="${dir.src}/META-INF/MANIFEST.MF"/>
     <property name="file.executable.main.class"
@@ -18,6 +22,9 @@
     <property name="file.data.xml"
               value="../pocket_book.xml"/>
 
+    <property name="file.jline.jar"
+              value="${dir.lib}/jline-2/jline-2.12.1.jar"/>
+
     <property name="ant.build.javac.source" value="1.6"/>
     <property name="ant.build.javac.target" value="1.6"/>
     <property name="build.sysclasspath"     value="last"/>
@@ -25,14 +32,18 @@
 
     <!-- Compile a project -->
     <target name="compile" depends="mkdirs">
-        <javac srcdir="${dir.src}" destdir="${dir.build.classes}" />
+        <javac srcdir="${dir.src}" destdir="${dir.build.classes}" >
+            <classpath location="../lib/jline-2/jline-2.12.1.jar"/>
+        </javac>
     </target>
 
     <!-- Create an executable jar -->
     <target name="package" depends="compile">
         <jar destfile="${file.jar}"
-             basedir="${dir.build.classes}"
-             manifest="${file.manifest}" />
+             manifest="${file.manifest}">
+            <fileset dir="${dir.build.classes}"/>
+            <zipfileset src="${file.jline.jar}"/>
+        </jar>
     </target>
 
     <!-- Make docs  -->
