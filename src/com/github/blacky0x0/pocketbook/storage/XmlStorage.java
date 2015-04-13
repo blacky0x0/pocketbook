@@ -20,7 +20,7 @@ public class XmlStorage implements IStorage {
     private PocketBook pocketBook;
 
 
-    public static final transient String DEFAULT_NAME = "/media/WD2TB/dexter/workspace/IdeaProjects/MINE/pb/pocket_book.xml";
+    public static final transient String DEFAULT_NAME = "../pocket_book.xml";
 
     public XmlStorage() {
         this (DEFAULT_NAME);
@@ -63,7 +63,7 @@ public class XmlStorage implements IStorage {
     }
 
     @Override
-    public void add(Contact contact) {
+    public boolean add(Contact contact) {
         pocketBook.add(contact);
 
         try
@@ -72,27 +72,35 @@ public class XmlStorage implements IStorage {
             writer = new OutputStreamWriter(os, Charset.forName("utf8"));
 
             xmlMapper.marshall(pocketBook, writer);
+            return true;
         }
         catch (FileNotFoundException e)
         {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     @Override
-    public void delete(String uuid) {
-        pocketBook.delete(uuid);
+    public boolean delete(String uuid) {
 
-        try
+        if (pocketBook.delete(uuid))
         {
-            OutputStream os = new FileOutputStream(file, false);
-            writer = new OutputStreamWriter(os, Charset.forName("utf8"));
+            try
+            {
+                OutputStream os = new FileOutputStream(file, false);
+                writer = new OutputStreamWriter(os, Charset.forName("utf8"));
 
-            xmlMapper.marshall(pocketBook, writer);
+                xmlMapper.marshall(pocketBook, writer);
+                return true;
+            }
+            catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
         }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
+
+        return false;
     }
 }

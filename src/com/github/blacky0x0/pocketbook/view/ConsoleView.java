@@ -7,59 +7,26 @@ import java.util.List;
 import com.github.blacky0x0.pocketbook.exception.AppException;
 import com.github.blacky0x0.pocketbook.model.Contact;
 import com.github.blacky0x0.pocketbook.storage.IStorage;
+import com.github.blacky0x0.pocketbook.view.enums.Message;
+import com.github.blacky0x0.pocketbook.view.enums.Option;
 import jline.console.ConsoleReader;
-
-// TODO: pick out messages to external file | enum
 
 public class ConsoleView {
 
-	private IStorage storage;
+	protected IStorage storage;
 
-    private ConsoleReader reader;
-    private PrintWriter out;
-	private String userInput;
-
-	// Messages to the user
-	static final String POCKETBOOK_EMPTY = "---===Pocket book is empty===---";
-	static final String NOTHING_FOUND = "---===Nothing was found===---";
-	static final String NOTHING_TO_PRINT = "---===Nothing to print===---";
-	static final String ENTRY_ADDED = "---===The entry was added===---";
-	static final String ENTRY_NOT_ADDED = "---===The entry wasn't added===---";
-	static final String ENTRY_DELETED = "---===The entry was deleted===---";
-	static final String ENTRY_NOT_DELETED = "---===The entry wasn't deleted===---";
+    protected ConsoleReader reader;
+    protected PrintWriter out;
+    protected String userInput;
 
 	// The column headings
-	static final String ID = "ID";
-	static final String NAME = "Name";
-	static final String PHONE = "Phone";
-	static final String EMAIL = "E-mail";
+	public static final String ID = "ID";
+    public static final String NAME = "Name";
+    public static final String PHONE = "Phone";
+    public static final String EMAIL = "E-mail";
 
-	// The Main Screen
-	static final String MAIN_SCREEN_TITLE = "###Pocket book###";
-	static final String MAIN_SCREEN_ADD = "Add a contact";
-	static final String MAIN_SCREEN_PRINT = "Print a contact list";
-	static final String MAIN_SCREEN_SEARCH = "Search a contact by name";
-	static final String MAIN_SCREEN_DELETE = "Delete a contact";
-	static final String MAIN_SCREEN_EXIT = "Exit";
-	static final String MAIN_SCREEN_PRESS_ENTER = "Enter a number & press Enter: ";
-
-	// The Sub Menus
-	static final String SUBMENU_DELETE_TITLE = "###Delete a contact###";
-	static final String SUBMENU_DELETE_PRINT = "Print a contact list";
-	static final String SUBMENU_DELETE_EXIT = "Return to the main menu";
-	static final String SUBMENU_DELETE_PRESS_ENTER = 
-			"Enter the contact id to delete or the command & press Enter: ";
-	static final String SUBMENU_DELETE_PRINT_CHAR = "p";
-	static final String SUBMENU_DELETE_QUIT_CHAR = "q";
-
-	static final String SUBMENU_SEARCH_TITLE = "###Search for a contact###";
-	static final String SUBMENU_SEARCH_ENTER_NAME = "Input a contact name & press Enter: ";
-
-	static final String SUBMENU_ADD_TITLE = "###Add a contact###";
-	static final String SUBMENU_ADD_ENTER_NAME = "Input a contact name & press Enter: ";
-	static final String SUBMENU_ADD_ENTER_PHONE = "Input a phone number & press Enter: ";
-	static final String SUBMENU_ADD_ENTER_EMAIL = "Input an e-mail address & press Enter: ";
-
+    // Formatter for columns
+    public static final String COLUMN_FORMAT = "|%-36s|%-16s|%-16s|%-20s|";
 	
 	public ConsoleView(IStorage storage) {
 		this.storage = storage;
@@ -79,47 +46,50 @@ public class ConsoleView {
 	 * The main entry point to interactive mode 
 	 */
 	public void startMainScreen() throws IOException {
-        reader.clearScreen();
-		printMainScreen();
-        out.flush();
-        userInput = reader.readLine().trim();
-        out.flush();
-		while (!userInput.equals("5")) {
-			
-			if(userInput.length() != 0) { 
-				switch (userInput.charAt(0)) {
-				case '1':
-					// Adding a new contact
-					addNewContact();
-					break;
-	
-				case '2':
-					// Print a contact list
-					printPocketBook();
-					break;
-	
-				case '3':
-					// Search for a contact
-					clearScreen();
-					searchByName();
-					break;
-	
-				case '4':
-					// Delete a contact
-					deleteContact();
-					break;
-					
-				default:
-                    reader.clearScreen();
-					break;
-				}
-			}
-			
-			printMainScreen();
+        clearScreen();
+
+        final String addCommand = Option.getCommand(Option.MAIN_SCREEN_ADD);
+        final String printCommand = Option.getCommand(Option.MAIN_SCREEN_PRINT);
+        final String searchCommand = Option.getCommand(Option.MAIN_SCREEN_SEARCH);
+        final String deleteCommand = Option.getCommand(Option.MAIN_SCREEN_DELETE);
+        final String exitCommand = Option.getCommand(Option.MAIN_SCREEN_EXIT);
+
+		do {
+
+            printMainScreen();
             out.flush();
             userInput = reader.readLine().trim();
             out.flush();
-		}
+
+            // Adding a new contact
+            if (addCommand.equalsIgnoreCase(userInput)) {
+                clearScreen();
+                addNewContact();
+                continue;
+            }
+
+            // Print a contact list
+            if (printCommand.equalsIgnoreCase(userInput)) {
+                clearScreen();
+                printPocketBook();
+                continue;
+            }
+
+            // Search for a contact
+            if (searchCommand.equalsIgnoreCase(userInput)) {
+                clearScreen();
+                searchByName();
+                continue;
+            }
+
+            // Delete a contact
+            if (deleteCommand.equalsIgnoreCase(userInput)) {
+                clearScreen();
+                deleteContact();
+            }
+
+
+		} while (!exitCommand.equalsIgnoreCase(userInput));
 
 	}
 	
@@ -127,25 +97,8 @@ public class ConsoleView {
 	 * Displays the text of the main screen
 	 */
 	private void printMainScreen() {
-        out.println(MAIN_SCREEN_TITLE);
+        out.print(Message.MAIN_SCREEN);
 
-        out.print("(1) ");
-        out.println(MAIN_SCREEN_ADD);
-
-        out.print("(2) ");
-        out.println(MAIN_SCREEN_PRINT);
-
-        out.print("(3) ");
-        out.println(MAIN_SCREEN_SEARCH);
-
-        out.print("(4) ");
-        out.println(MAIN_SCREEN_DELETE);
-
-        out.print("(5) ");
-        out.println(MAIN_SCREEN_EXIT);
-        out.println();
-
-        out.print(MAIN_SCREEN_PRESS_ENTER);
         out.flush();
 	}
 
@@ -153,101 +106,58 @@ public class ConsoleView {
 	 * Enter the sub menu to delete a contact.
 	 */
 	private void deleteContact() throws IOException {
-		clearScreen();
+        // Get commands for do-while cycle
+        String printCommand = Option.getCommand(Option.DELETE_SCREEN_PRINT);
+        String deleteCommand = Option.getCommand(Option.DELETE_SCREEN_EXIT);
+
 		do {
-			// 1. Print a submenu
-			printDeleteSubMenuScreen();
+            // 1. Displays the text of the 'delete' sub menu screen
+            out.print(Message.SUB_SCREEN_DELETE);
+            out.flush();
 			// 2. Get a contact id or command
-            out.flush();
             userInput = reader.readLine().trim();
-			// 3. Clear the screen
 			clearScreen();
-            out.flush();
-			// 4. Make a decision
-			if (userInput.equalsIgnoreCase(SUBMENU_DELETE_PRINT_CHAR)) {
-				// Print a contact list
+
+			// 3. Make a decision
+			if (userInput.equalsIgnoreCase(printCommand))
 				printPocketBook();
-                out.flush();
-			}
 			
-			if (!(userInput.equalsIgnoreCase(SUBMENU_DELETE_PRINT_CHAR))
-					& !(userInput.equalsIgnoreCase(SUBMENU_DELETE_QUIT_CHAR))) {
-                    storage.delete(userInput);
-                out.println(ENTRY_DELETED);
+			if (!(userInput.equalsIgnoreCase(printCommand))
+					& !(userInput.equalsIgnoreCase(deleteCommand))) {
 
-//				if (storage.delete(userInput)) {
-//					System.out.println(ENTRY_DELETED);
-//				} else {
-//					System.out.println(ENTRY_NOT_DELETED);
-//				}
-				out.println();
-				out.println();
-                out.flush();
+                if (storage.delete(userInput))
+                    out.println(Message.ENTRY_DELETED);
+                else
+                    out.println(Message.ENTRY_NOT_DELETED);
 			}
 
-		} while (!userInput.equalsIgnoreCase(SUBMENU_DELETE_QUIT_CHAR));
-	}
-
-	/**
-	 * Displays the text of the 'search' sub menu screen 
-	 */
-	private void printSearchSubMenuScreen() {
-		out.println(SUBMENU_SEARCH_TITLE);
-		out.println();
-		out.print(SUBMENU_SEARCH_ENTER_NAME);
-        out.flush();
-	}
-	
-	/**
-	 * Displays the text of the 'delete' sub menu screen 
-	 */
-	private void printDeleteSubMenuScreen() {
-		out.println(SUBMENU_DELETE_TITLE);
-
-		out.print("(");
-		out.print(SUBMENU_DELETE_PRINT_CHAR);
-		out.print(") ");
-		out.println(SUBMENU_DELETE_PRINT);
-
-		out.print("(");
-		out.print(SUBMENU_DELETE_QUIT_CHAR);
-		out.print(") ");
-		out.println(SUBMENU_DELETE_EXIT);
-
-		out.println();
-		out.print(SUBMENU_DELETE_PRESS_ENTER);
-        out.flush();
-	}
-
-	/**
-	 * Displays the text of the 'add' sub menu screen 
-	 */
-	private void printAddContactSubMenuScreen() {
-		out.println(SUBMENU_ADD_TITLE);
-		out.println();
-        out.flush();
+            out.flush();
+		} while (!userInput.equalsIgnoreCase(deleteCommand));
 	}
 	
 	/**
 	 * Enter the sub menu to add a contact.
 	 */
 	private void addNewContact() throws IOException {
-		clearScreen();
-		printAddContactSubMenuScreen();
-		String name;
-		String phone;
-		String email;
+        String name;
+        String phone;
+        String email;
+
+        // Displays the text of the 'add' sub menu screen
+        out.println(Message.ADD_TITLE);
+        out.flush();
+
 		do {
-			out.print(SUBMENU_ADD_ENTER_NAME);
+			out.print(Message.ENTER_NAME);
             out.flush();
             name = reader.readLine().trim();
 		} while (name.equals(""));
 
-		out.print(SUBMENU_ADD_ENTER_PHONE);
+		out.print(Message.ENTER_PHONE);
         out.flush();
         phone = reader.readLine().trim();
 
-		out.print(SUBMENU_ADD_ENTER_EMAIL);
+		out.print(Message.ENTER_EMAIL);
         out.flush();
         email = reader.readLine().trim();
 
@@ -258,13 +168,10 @@ public class ConsoleView {
 
 		out.println();
 
-        storage.add(contact);
-        out.println(ENTRY_ADDED);
-
-//        if (storage.add(contact))
-//			System.out.println(ENTRY_ADDED);
-//		else
-//			System.out.println(ENTRY_NOT_ADDED);
+        if (storage.add(contact))
+			System.out.println(Message.ENTRY_ADDED);
+		else
+			System.out.println(Message.ENTRY_NOT_ADDED);
 
 		out.println();
 		out.println();
@@ -277,8 +184,8 @@ public class ConsoleView {
 	 */
 	private void printContactList(List<Contact> contactList) {
 		for (Contact c : contactList) {
-			out.format("|%-36s|%-16s|%-16s|%-20s|",
-					c.getUuid(), c.getName(), c.getPhone(), c.getEmail());
+			out.format(COLUMN_FORMAT,
+                    c.getUuid(), c.getName(), c.getPhone(), c.getEmail());
 			out.println();
 		}
 		out.println();
@@ -289,15 +196,15 @@ public class ConsoleView {
 	 * Displays all contacts from the pocket book.
 	 */
 	private void printPocketBook() throws IOException {
-		clearScreen();
 		printColumnHeadings();
 
-//		if (storage.isPocketBookEmpty()) {
-//			System.out.println(POCKETBOOK_EMPTY);
-//			System.out.println();
-//			System.out.println();
-//			return;
-//		}
+		if (storage.getAll().isEmpty()) {
+			out.println(Message.POCKETBOOK_EMPTY);
+			out.println();
+			out.println();
+            out.flush();
+			return;
+		}
 
 		printContactList(storage.getAll());
         out.flush();
@@ -308,20 +215,23 @@ public class ConsoleView {
 	 * in the pocket book. 
 	 */
 	private void searchByName() throws IOException {
-		clearScreen();
-		printSearchSubMenuScreen();
 
+		// Displays the text of the 'search' sub menu screen
+        out.println(Message.SEARCH_TITLE);
+        out.print(Message.ENTER_NAME);
         out.flush();
+
         userInput = reader.readLine().trim();
         out.flush();
 		printColumnHeadings();
 
-//		if (storage.isPocketBookEmpty()) {
-//			System.out.println(POCKETBOOK_EMPTY);
-//			System.out.println();
-//			System.out.println();
-//			return;
-//		}
+        if (storage.getAll().isEmpty()) {
+            out.println(Message.POCKETBOOK_EMPTY);
+            out.println();
+            out.println();
+            out.flush();
+            return;
+        }
 
 		printContactList(storage.getByName(userInput));
 
@@ -333,14 +243,12 @@ public class ConsoleView {
 	 * Headings for the contacts table
 	 */
 	private void printColumnHeadings() {
-		out.format("|%-36s|%-16s|%-16s|%-20s|", ID, NAME, PHONE, EMAIL);
+		out.format(COLUMN_FORMAT, ID, NAME, PHONE, EMAIL);
 		out.println();
         out.flush();
 	}
 
 	private void clearScreen() throws IOException {
-//		System.out.println(((char) 27) + "[2J"); // ANSI clear screen...
-//		System.out.flush();
         reader.clearScreen();
         out.flush();
 	}

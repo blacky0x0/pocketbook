@@ -16,8 +16,8 @@ public interface IStorage {
 
     List<Contact> getAll ();
 
-    void add (Contact contact);
+    boolean add (Contact contact);
 
-    void delete (String uuid);
+    boolean delete (String uuid);
 
 }

@@ -43,11 +43,13 @@ public class PocketBook {
         return list;
     }
 
-    public void add (Contact contact) {
+    public boolean add (Contact contact) {
         contacts.add(contact);
+
+        return contacts.contains(contact);
     }
 
-    public void delete (String uuid) {
+    public boolean delete (String uuid) {
         Contact result = null;
 
         for (Contact item : contacts) {
@@ -55,8 +57,12 @@ public class PocketBook {
                 result = item;
         }
 
-        if (result != null)
+        if (result != null) {
             contacts.remove(result);
+            return true;
+        }
+
+        return false;
     }
 
     public List<Contact> getContacts() {
