@@ -36,7 +36,7 @@ public class Main {
             return file_in_user_dir;
 
         if (isFileValid(file_in_user_home, out))
-            return file_in_user_dir;
+            return file_in_user_home;
 
         return null;
     }
