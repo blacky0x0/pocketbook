@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: Dushen Alexey
+Main-Class: com.github.blacky0x0.pocketbook.Main

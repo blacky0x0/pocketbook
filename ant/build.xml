@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project name="Build a pocket book" default="compile">
+
+    <property name="dir.build"          value="../.build"/>
+    <property name="dir.build.classes"  value="${dir.build}/classes"/>
+    <property name="dir.build.doc"      value="${dir.build}/doc"/>
+    <property name="dir.lib"            value="../lib"/>
+    <property name="dir.src"            value="../src"/>
+
+    <tstamp>
+        <format property="cur_date" pattern="yyyy-MM-dd_HH-mm" locale="en,UK"/>
+    </tstamp>
+
+    <property name="file.jar"
+              value="../pocket_book_${cur_date}.jar"/>
+    <property name="file.manifest"
+              value="${dir.src}/META-INF/MANIFEST.MF"/>
+    <property name="file.executable.main.class"
+              value="com.github.blacky0x0.pocketbook.Main"/>
+    <property name="file.executable.othermain.class"
+              value="com.github.blacky0x0.pocketbook.other.OtherMain"/>
+    <property name="file.data.xml"
+              value="../pocket_book.xml"/>
+
+    <property name="file.jline.jar"
+              value="${dir.lib}/jline-2/jline-2.12.1.jar"/>
+
+    <property name="ant.build.javac.source" value="1.6"/>
+    <property name="ant.build.javac.target" value="1.6"/>
+    <property name="build.sysclasspath"     value="last"/>
+    <property name="echo.level"             value="debug"/>
+
+    <!-- Compile a project -->
+    <target name="compile" depends="mkdirs">
+        <javac srcdir="${dir.src}" destdir="${dir.build.classes}" >
+            <classpath location="../lib/jline-2/jline-2.12.1.jar"/>
+        </javac>
+    </target>
+
+    <!-- Create an executable jar -->
+    <target name="package" depends="compile">
+        <jar destfile="${file.jar}"
+             manifest="${file.manifest}">
+            <fileset dir="${dir.build.classes}"/>
+            <zipfileset src="${file.jline.jar}"/>
+        </jar>
+    </target>
+
+    <!-- Make docs  -->
+    <target name="doc" depends="compile">
+        <javadoc destdir="${dir.build.doc}"
+                 sourcepath="${dir.src}"
+                 packagenames="com.*" />
+    </target>
+
+    <!-- Run an application -->
+    <target name="execute" depends="compile">
+        <java fork="yes"
+              classname="${file.executable.main.class}"
+              classpath="${dir.build.classes}" />
+    </target>
+
+    <!-- Make directories -->
+    <target name="mkdirs">
+        <mkdir dir="${dir.build}"/>
+        <mkdir dir="${dir.build.classes}"/>
+        <mkdir dir="${dir.build.doc}"/>
+    </target>
+
+    <!-- Clean a project: removes the temporary directories used -->
+    <target name="clean">
+        <delete dir="${dir.build.classes}"/>
+        <delete dir="${dir.build.doc}"/>
+        <delete dir="${dir.build}"/>
+    </target>
+</project>
