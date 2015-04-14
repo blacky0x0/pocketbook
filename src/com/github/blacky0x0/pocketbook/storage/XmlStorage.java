@@ -14,32 +14,53 @@ public class XmlStorage implements IStorage {
     private final File file;
 
     private Writer writer;
-    private Reader reader;
 
     private XmlMapper xmlMapper;
     private PocketBook pocketBook;
 
 
-    public static final transient String DEFAULT_NAME = "./pocket_book.xml";
+    public static final transient String DEFAULT_NAME = "pocket_book.xml";
 
     public XmlStorage() {
-        this (DEFAULT_NAME);
+        this (DEFAULT_NAME, false);
     }
 
-    public XmlStorage(String fileName) {
-        this.file = new File(fileName);
+    public XmlStorage(String fileName, boolean isNeedToCreateFile) {
+        this(new File(fileName), isNeedToCreateFile);
+    }
+
+    public XmlStorage(File file, boolean isNeedToCreateFile) {
+        this.file = file;
+
+        InputStream is = null;
+        Reader reader = null;
         xmlMapper = new XmlMapper(PocketBook.class);
+
+        if (isNeedToCreateFile)
+        {
+            pocketBook = new PocketBook();
+            return;
+        }
 
         try
         {
             // Read & unmarshall a specified file
-            InputStream is = new FileInputStream(file);
+            is = new FileInputStream(file);
             reader = new InputStreamReader(is, Charset.forName("utf8"));
             pocketBook = xmlMapper.unmarshall(reader);
         }
         catch (FileNotFoundException e)
         {
             throw new AppException("Can't read a file: ".concat(file.toString()), e);
+        }
+        finally
+        {
+            if (reader != null)
+                try { reader.close(); }
+                catch (IOException e) { e.printStackTrace(); }
+            if (is != null)
+                try { is.close(); }
+                catch (IOException e) { e.printStackTrace(); }
         }
     }
 
